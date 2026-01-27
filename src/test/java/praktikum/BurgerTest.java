@@ -12,65 +12,79 @@ import static org.junit.Assert.*;
 @RunWith(Enclosed.class)
 public class BurgerTest {
 
-    @Test
-    public void addIngredientShouldAddIngredientToList() {
-        Burger burger = new Burger();
-        Ingredient ingredient = new Ingredient(IngredientType.FILLING, "cheese", 50);
+    // ---------- addIngredient ----------
 
-        burger.addIngredient(ingredient);
+    @Test
+    public void addIngredientShouldIncreaseIngredientsSize() {
+        Burger burger = new Burger();
+        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
+
+        burger.addIngredient(cheese);
 
         assertEquals(1, burger.ingredients.size());
     }
 
+    // ---------- removeIngredient ----------
+
     @Test
-    public void removeIngredientShouldRemoveIngredientByIndex() {
+    public void removeIngredientByIndexShouldRemoveIngredient() {
         Burger burger = new Burger();
-        Ingredient ingredient = new Ingredient(IngredientType.FILLING, "cheese", 50);
-        burger.addIngredient(ingredient);
+        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
+        burger.addIngredient(cheese);
 
         burger.removeIngredient(0);
 
         assertTrue(burger.ingredients.isEmpty());
     }
 
-    @Test
-    public void moveIngredientShouldChangeIngredientsOrder() {
-        Burger burger = new Burger();
-        Ingredient first = new Ingredient(IngredientType.FILLING, "cheese", 50);
-        Ingredient second = new Ingredient(IngredientType.FILLING, "salad", 30);
+    // ---------- moveIngredient ----------
 
-        burger.addIngredient(first);
-        burger.addIngredient(second);
+    @Test
+    public void moveIngredientShouldChangeOrder() {
+        Burger burger = new Burger();
+        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
+        Ingredient salad = new Ingredient(IngredientType.FILLING, "salad", 30);
+
+        burger.addIngredient(cheese);
+        burger.addIngredient(salad);
 
         burger.moveIngredient(0, 1);
 
-        assertEquals(first, burger.ingredients.get(1));
+        assertEquals(cheese, burger.ingredients.get(1));
     }
+
+    // ---------- getPrice ----------
 
     @Test
     public void getPriceShouldReturnCorrectPrice() {
         Burger burger = new Burger();
         Bun bun = new Bun("black bun", 100);
-        Ingredient ingredient = new Ingredient(IngredientType.FILLING, "cheese", 50);
+        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
 
         burger.setBuns(bun);
-        burger.addIngredient(ingredient);
+        burger.addIngredient(cheese);
 
         assertEquals(250, burger.getPrice(), 0);
     }
 
+    // ---------- getReceipt ----------
+
     @Test
     public void getReceiptWithoutIngredientsShouldReturnCorrectReceipt() {
-        Bun bun = new Bun("black bun", 100);
         Burger burger = new Burger();
+        Bun bun = new Bun("black bun", 100);
+
         burger.setBuns(bun);
 
-        String expected =
-                String.format("(==== %s ====)%n%n(==== %s ====)%n%nPrice: %f%n",
-                        bun.getName(), bun.getName(), burger.getPrice());
+        String expectedReceipt =
+                "(==== black bun ====)\n\n" +
+                        "(==== black bun ====)\n\n" +
+                        "Price: 200,000000\n";
 
-        assertEquals(expected, burger.getReceipt());
+        assertEquals(expectedReceipt, burger.getReceipt());
     }
+
+    // ---------- setBuns (parameterized) ----------
 
     @RunWith(Parameterized.class)
     public static class SetBunsParameterizedTest {
@@ -82,7 +96,7 @@ public class BurgerTest {
         }
 
         @Parameterized.Parameters
-        public static List<Bun> data() {
+        public static List<Bun> buns() {
             return List.of(
                     new Bun("black bun", 100),
                     new Bun("white bun", 80)
