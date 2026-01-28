@@ -5,9 +5,11 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class BurgerTest {
@@ -17,9 +19,9 @@ public class BurgerTest {
     @Test
     public void addIngredientShouldIncreaseIngredientsSize() {
         Burger burger = new Burger();
-        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
+        Ingredient ingredient = mock(Ingredient.class);
 
-        burger.addIngredient(cheese);
+        burger.addIngredient(ingredient);
 
         assertEquals(1, burger.ingredients.size());
     }
@@ -29,8 +31,8 @@ public class BurgerTest {
     @Test
     public void removeIngredientByIndexShouldRemoveIngredient() {
         Burger burger = new Burger();
-        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
-        burger.addIngredient(cheese);
+        Ingredient ingredient = mock(Ingredient.class);
+        burger.addIngredient(ingredient);
 
         burger.removeIngredient(0);
 
@@ -42,15 +44,16 @@ public class BurgerTest {
     @Test
     public void moveIngredientShouldChangeOrder() {
         Burger burger = new Burger();
-        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
-        Ingredient salad = new Ingredient(IngredientType.FILLING, "salad", 30);
+        Ingredient first = mock(Ingredient.class);
+        Ingredient second = mock(Ingredient.class);
 
-        burger.addIngredient(cheese);
-        burger.addIngredient(salad);
+        burger.addIngredient(first);
+        burger.addIngredient(second);
 
         burger.moveIngredient(0, 1);
 
-        assertEquals(cheese, burger.ingredients.get(1));
+        assertEquals(first, burger.ingredients.get(1));
+        assertEquals(second, burger.ingredients.get(0));
     }
 
     // ---------- getPrice ----------
@@ -58,13 +61,17 @@ public class BurgerTest {
     @Test
     public void getPriceShouldReturnCorrectPrice() {
         Burger burger = new Burger();
-        Bun bun = new Bun("black bun", 100);
-        Ingredient cheese = new Ingredient(IngredientType.FILLING, "cheese", 50);
+
+        Bun bun = mock(Bun.class);
+        when(bun.getPrice()).thenReturn(100f);
+
+        Ingredient ingredient = mock(Ingredient.class);
+        when(ingredient.getPrice()).thenReturn(50f);
 
         burger.setBuns(bun);
-        burger.addIngredient(cheese);
+        burger.addIngredient(ingredient);
 
-        assertEquals(250, burger.getPrice(), 0);
+        assertEquals(250f, burger.getPrice(), 0.0001f);
     }
 
     // ---------- getReceipt ----------
@@ -72,14 +79,19 @@ public class BurgerTest {
     @Test
     public void getReceiptWithoutIngredientsShouldReturnCorrectReceipt() {
         Burger burger = new Burger();
-        Bun bun = new Bun("black bun", 100);
+
+        Bun bun = mock(Bun.class);
+        when(bun.getName()).thenReturn("black bun");
+        when(bun.getPrice()).thenReturn(100f);
 
         burger.setBuns(bun);
 
+        // Собираем expected тем же форматом, что и в Burger,
+        // чтобы не зависеть от запятой/точки в float на разных локалях.
         String expectedReceipt =
-                "(==== black bun ====)\n\n" +
-                        "(==== black bun ====)\n\n" +
-                        "Price: 200,000000\n";
+                String.format("(==== %s ====)%n", "black bun") +
+                        String.format("(==== %s ====)%n", "black bun") +
+                        String.format("%nPrice: %f%n", burger.getPrice());
 
         assertEquals(expectedReceipt, burger.getReceipt());
     }
@@ -89,23 +101,29 @@ public class BurgerTest {
     @RunWith(Parameterized.class)
     public static class SetBunsParameterizedTest {
 
-        private final Bun bun;
+        private final String bunName;
+        private final float bunPrice;
 
-        public SetBunsParameterizedTest(Bun bun) {
-            this.bun = bun;
+        public SetBunsParameterizedTest(String bunName, float bunPrice) {
+            this.bunName = bunName;
+            this.bunPrice = bunPrice;
         }
 
-        @Parameterized.Parameters
-        public static List<Bun> buns() {
-            return List.of(
-                    new Bun("black bun", 100),
-                    new Bun("white bun", 80)
-            );
+        @Parameterized.Parameters(name = "Тестовые данные: bunName={0}, bunPrice={1}")
+        public static Collection<Object[]> data() {
+            return Arrays.asList(new Object[][]{
+                    {"black bun", 100f},
+                    {"white bun", 80f}
+            });
         }
 
         @Test
         public void setBunsShouldSetCorrectBun() {
             Burger burger = new Burger();
+
+            Bun bun = mock(Bun.class);
+            when(bun.getName()).thenReturn(bunName);
+            when(bun.getPrice()).thenReturn(bunPrice);
 
             burger.setBuns(bun);
 
