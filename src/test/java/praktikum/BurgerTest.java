@@ -42,7 +42,7 @@ public class BurgerTest {
     // ---------- moveIngredient ----------
 
     @Test
-    public void moveIngredientShouldChangeOrder() {
+    public void moveIngredientShouldMoveFirstToNewIndex() {
         Burger burger = new Burger();
         Ingredient first = mock(Ingredient.class);
         Ingredient second = mock(Ingredient.class);
@@ -53,8 +53,22 @@ public class BurgerTest {
         burger.moveIngredient(0, 1);
 
         assertEquals(first, burger.ingredients.get(1));
+    }
+
+    @Test
+    public void moveIngredientShouldMoveSecondToOldIndex() {
+        Burger burger = new Burger();
+        Ingredient first = mock(Ingredient.class);
+        Ingredient second = mock(Ingredient.class);
+
+        burger.addIngredient(first);
+        burger.addIngredient(second);
+
+        burger.moveIngredient(0, 1);
+
         assertEquals(second, burger.ingredients.get(0));
     }
+
 
     // ---------- getPrice ----------
 
