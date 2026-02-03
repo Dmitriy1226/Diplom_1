@@ -26,10 +26,20 @@ public class BurgerTest {
         assertEquals(1, burger.ingredients.size());
     }
 
+    @Test
+    public void addIngredientShouldAddIngredientToList() {
+        Burger burger = new Burger();
+        Ingredient ingredient = mock(Ingredient.class);
+
+        burger.addIngredient(ingredient);
+
+        assertEquals(ingredient, burger.ingredients.get(0));
+    }
+
     // ---------- removeIngredient ----------
 
     @Test
-    public void removeIngredientByIndexShouldRemoveIngredient() {
+    public void removeIngredientByIndexShouldMakeIngredientsEmpty() {
         Burger burger = new Burger();
         Ingredient ingredient = mock(Ingredient.class);
         burger.addIngredient(ingredient);
@@ -56,7 +66,7 @@ public class BurgerTest {
     }
 
     @Test
-    public void moveIngredientShouldMoveSecondToOldIndex() {
+    public void moveIngredientShouldShiftSecondToOldIndex() {
         Burger burger = new Burger();
         Ingredient first = mock(Ingredient.class);
         Ingredient second = mock(Ingredient.class);
@@ -69,11 +79,22 @@ public class BurgerTest {
         assertEquals(second, burger.ingredients.get(0));
     }
 
-
     // ---------- getPrice ----------
 
     @Test
-    public void getPriceShouldReturnCorrectPrice() {
+    public void getPriceShouldCountBunTwice() {
+        Burger burger = new Burger();
+
+        Bun bun = mock(Bun.class);
+        when(bun.getPrice()).thenReturn(100f);
+
+        burger.setBuns(bun);
+
+        assertEquals(200f, burger.getPrice(), 0.0001f);
+    }
+
+    @Test
+    public void getPriceShouldAddIngredientsToBunPrice() {
         Burger burger = new Burger();
 
         Bun bun = mock(Bun.class);
@@ -100,8 +121,6 @@ public class BurgerTest {
 
         burger.setBuns(bun);
 
-        // Собираем expected тем же форматом, что и в Burger,
-        // чтобы не зависеть от запятой/точки в float на разных локалях.
         String expectedReceipt =
                 String.format("(==== %s ====)%n", "black bun") +
                         String.format("(==== %s ====)%n", "black bun") +
